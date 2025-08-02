@@ -1,0 +1,21 @@
+spring:
+  # local 프로필 설정
+  profiles:
+    active: local
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/study_bot_db?serverTimezone=Asia/Tokyo&characterEncoding=UTF-8
+    username: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+# Discord bot Token here
+discord:
+  token:

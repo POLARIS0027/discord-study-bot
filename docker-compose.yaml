@@ -12,7 +12,7 @@ services:
     # 환경 변수 설정
     environment:
       # MySQL root 계정의 비밀번호
-      MYSQL_ROOT_PASSWORD: lize123
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       # 컨테이너가 처음 실행될 때 자동으로 생성할 데이터베이스 이름
       MYSQL_DATABASE: study_bot_db
       # 시간대 설정 (한국 시간으로)

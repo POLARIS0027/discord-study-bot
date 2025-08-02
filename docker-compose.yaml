@@ -1,0 +1,36 @@
+# 실행할 서비스(컨테이너)들 정의
+services:
+  # 서비스 이름 (우리는 db라고 지을게)
+  db:
+    # 사용할 이미지 (MySQL 8.0 버전)
+    image: mysql:8.0
+    # 컨테이너 이름
+    container_name: study-bot-mysql
+    # 도커가 재시작될 때 컨테이너도 항상 다시 시작
+    restart: always
+
+    # 환경 변수 설정
+    environment:
+      # MySQL root 계정의 비밀번호
+      MYSQL_ROOT_PASSWORD: lize123
+      # 컨테이너가 처음 실행될 때 자동으로 생성할 데이터베이스 이름
+      MYSQL_DATABASE: study_bot_db
+      # 시간대 설정 (한국 시간으로)
+      TZ: Asia/Seoul
+
+    # 포트 설정 (내 컴퓨터의 3306 포트와 컨테이너의 3306 포트를 연결)
+    ports:
+      - "3306:3306"
+
+    # 데이터베이스 데이터를 저장할 공간 (컨테이너가 삭제돼도 데이터는 보존됨)
+    volumes:
+      - db-data:/var/lib/mysql
+
+    # MySQL 서버 실행 시 적용할 명령어 (한글, 이모티콘 깨짐 방지)
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+# 위에서 사용한 volumes 정의
+volumes:
+  db-data:

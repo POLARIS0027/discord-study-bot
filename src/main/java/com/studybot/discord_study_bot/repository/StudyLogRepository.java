@@ -30,7 +30,7 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long>{ // �
      * @param endDate 종료일
      * @return 사용자 이름과 공부 시간(초)의 합계를 포함한 리스트
      */
-    // 리턴 타입을 List<Object[]>를 리턴함
+    // 리턴 타입을 List<Object[]>를 리턴함 !! Todo:MySQL 쿼리를 JPQL쿼리 사용하도록 수정해야 함. 임시조치임
     @Query(value = "SELECT s.user_name, SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)) " +
             "FROM study_log s " +
             "WHERE s.start_time >= :startDate AND s.end_time <= :endDate AND s.end_time IS NOT NULL " +

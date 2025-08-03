@@ -5,6 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.repository.query.Param;
+import com.studybot.discord_study_bot.dto.RankingDto;
+import java.time.LocalDateTime;
+import java.util.List; //
 
 import java.util.Optional;
 
@@ -20,4 +23,19 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long>{ // �
      */
     @Query("SELECT s FROM StudyLog s WHERE s.userId = :userId AND s.endTime IS NULL ORDER BY s.startTime DESC LIMIT 1")
     Optional<StudyLog> findLatestUnfinishedLogByUserId(@Param("userId") String userId);
+
+    /**
+     * 기간 내 사용자의 공부 시간 합계를 계산하여 랭킹을 반환.
+     * @param startDate 시작일
+     * @param endDate 종료일
+     * @return 사용자 이름과 공부 시간(초)의 합계를 포함한 리스트
+     */
+    // 리턴 타입을 List<Object[]>를 리턴함
+    @Query(value = "SELECT s.user_name, SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)) " +
+            "FROM study_log s " +
+            "WHERE s.start_time >= :startDate AND s.end_time <= :endDate AND s.end_time IS NOT NULL " +
+            "GROUP BY s.user_id, s.user_name " +
+            "ORDER BY SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)) DESC",
+            nativeQuery = true)
+    List<Object[]> findRankingsByPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }

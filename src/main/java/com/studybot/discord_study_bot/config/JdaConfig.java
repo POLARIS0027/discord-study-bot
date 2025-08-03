@@ -1,5 +1,6 @@
 package com.studybot.discord_study_bot.config;
 
+import com.studybot.discord_study_bot.listener.RankingCommandListener;
 import com.studybot.discord_study_bot.listener.VoiceChannelListener;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +20,15 @@ public class JdaConfig {
     private String token;
 
     private final VoiceChannelListener voiceChannelListener;
+    private final RankingCommandListener rankingCommandListener;
 
     @Bean // JDA 객체를 spring이 관리하도록 함
     public JDA jda() throws InterruptedException{
         JDA jda = JDABuilder.createDefault(token)
-                // 음성감지 권한
-                .enableIntents(GatewayIntent.GUILD_VOICE_STATES)
+                // 음성감지 권한, 메세지 권한
+                .enableIntents(GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT)
                 // Listener를 봇에 등록
-                .addEventListeners(voiceChannelListener)
+                .addEventListeners(voiceChannelListener, rankingCommandListener)
                 .build();
 
         // 봇 빌드 대기

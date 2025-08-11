@@ -4,6 +4,7 @@ package com.studybot.discord_study_bot.listener;
 import com.studybot.discord_study_bot.dto.RankingDto;
 import com.studybot.discord_study_bot.service.RankingService;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.util.List;
 
 @Component
@@ -29,8 +31,35 @@ public class RankingCommandListener extends ListenerAdapter {
 
         String message = event.getMessage().getContentRaw();
         User author = event.getAuthor();
+        if (message.equals("!도움말")) { // !도움말 명령어 처리
+            logger.info("도움말 요청을 받았습니다.");
 
-        if (message.equals("!주간랭킹")) {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("**스터디 봇 도움말**");
+            eb.setColor(new Color(0x567ACE));
+            eb.setDescription("음성 채널에서 공부 시간을 기록하고 랭킹을 보여주는 봇이에요! ✨");
+
+            eb.addField("!도움말", "지금 보고 있는 이 도움말을 보여줘요.", false);
+            eb.addField("!리제", "리제쌤의 오픈카톡 링크를 보여줘요.", false);
+            eb.addField("!주간랭킹", "이번 주의 공부 시간 랭킹을 보여줘요.", false);
+            eb.addField("!내랭킹", "나의 이번 주 공부 시간과 랭킹을 DM으로 알려줘요.", false);
+
+            eb.setFooter("열심히 공부하는 당신을 응원해요! 🔥");
+
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        } else if (message.equals("!리제")) { // 리제 오픈카톡 표시
+            logger.info("리제쌤 문의 링크 요청을 받았습니다.");
+
+            EmbedBuilder eb = new EmbedBuilder();
+            // 제목을 클릭하면 링크로 이동
+            eb.setTitle("💌 리제쌤에게 문의하기", "https://open.kakao.com/o/sz17qsZf");
+            eb.setColor(new Color(0xaca4e4)); 
+            eb.setDescription("리제쌤에게 과외문의 or 그밖의 문의/상담/질문 어느것이라도 좋아요!");
+            eb.setFooter("망설이지 말고 지금 바로 클릭! 👉");
+
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+
+        } else if (message.equals("!주간랭킹")) {
             logger.info("주간 랭킹 요청을 받음");
             List<RankingDto> weeklyRanking = rankingService.getWeeklyRanking();
 
@@ -38,7 +67,6 @@ public class RankingCommandListener extends ListenerAdapter {
                 event.getChannel().sendMessage("이번 주 공부 기록이 아직 없어요.").queue();
                 return;
             }
-
 
             // DESC정렬로 DB에서 받아오니까, 순서대로 순회하면서 추가한다. 랭킹을 몇위까지 표시할지는 상담
             StringBuilder rankMessage = new StringBuilder("🏆 이번 주 공부 시간 랭킹 🏆\n");

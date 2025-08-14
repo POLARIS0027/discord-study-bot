@@ -4,7 +4,7 @@ spring:
     active: local
 
   datasource:
-    url: jdbc:mysql://localhost:3306/study_bot_db?serverTimezone=Asia/Tokyo&characterEncoding=UTF-8
+    url: jdbc:mysql://10.0.1.124:3306/study_bot_db?serverTimezone=Asia/Tokyo&characterEncoding=UTF-8
     username: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
@@ -15,7 +15,17 @@ spring:
       hibernate:
         format_sql: true
     show-sql: true
+    
+# logging 관련 설정
+logging:
+  file:
+    # 로그 파일을 저장할 경로와 이름
+    name: logs/study-bot.log
+  level:
+    # 'com.studybot' 패키지 아래의 로그는 INFO 레벨 이상만 기록
+    com.studybot: INFO
 
 # Discord bot Token here
 discord:
   token:
+  prefix: "!" # 봇 명령어 접두사

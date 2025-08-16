@@ -29,3 +29,4 @@ logging:
 discord:
   token:
   prefix: "!" # 봇 명령어 접두사
+  exclude-user-id: "794417295468003399" # 제외할 userId

@@ -4,6 +4,7 @@ package com.studybot.discord_study_bot.listener;
 import com.studybot.discord_study_bot.dto.RankingDto;
 import com.studybot.discord_study_bot.service.RankingService;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.JDA;
 import org.springframework.beans.factory.annotation.Value;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -22,6 +23,7 @@ public class RankingCommandListener extends ListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(RankingCommandListener.class);
     private final RankingService rankingService;
+    private JDA jda;
 
     // application.yml에서 discord.prefix 값을 가져와서 할당
     @Value("${discord.prefix}")
@@ -37,6 +39,7 @@ public class RankingCommandListener extends ListenerAdapter {
 
         String message = event.getMessage().getContentRaw();
         User author = event.getAuthor();
+        String authorId = author.getId(); // 닉네임 대신 ID를 사용
 
         // prefix로 시작하지 않으면 무시함
         if (!message.startsWith(prefix)){
@@ -90,9 +93,14 @@ public class RankingCommandListener extends ListenerAdapter {
                 StringBuilder rankMessage = new StringBuilder("🏆 이번 주 공부 시간 랭킹 🏆\n");
                 for (int i = 0; i < weeklyRanking.size(); i++) {
                     RankingDto ranker = weeklyRanking.get(i);
+
+                    // userID로 User객체를 가져와서 최신 이름을 사용
+                    User user = jda.retrieveUserById(ranker.getUserId()).complete();
+                    String userName =user != null ? user.getEffectiveName() : "(알 수 없는 사용자)";
+
                     rankMessage.append(String.format("%d. %s - %s\n",
                             i + 1,
-                            ranker.getUserName(),
+                            userName, // id를 이름으로 교체함
                             formatDuration(ranker.getTotalDuration())));
                 }
 
@@ -110,9 +118,10 @@ public class RankingCommandListener extends ListenerAdapter {
                 // 2. 랭킹에서 자기 순위 찾기
                 int myRank = -1;
                 long myTotalStudyTime = 0;
+                // 닉네임 비교 대신 ID비교로
                 for (int i = 0; i < weeklyRanking.size(); i++) {
                     // DB유저명과 자기 이름을 비교함
-                    if (weeklyRanking.get(i).getUserName().equals(author.getEffectiveName())) {
+                    if (weeklyRanking.get(i).getUserId().equals(authorId)) {
                         myRank = i + 1;
                         myTotalStudyTime = weeklyRanking.get(i).getTotalDuration();
                         break;

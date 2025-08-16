@@ -38,4 +38,5 @@ out/
 
 # 민감한 설정 파일
 application-local.yml
+application-prod.yml
 .env 

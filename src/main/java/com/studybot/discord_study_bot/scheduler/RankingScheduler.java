@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,13 +18,18 @@ import java.util.List;
 
 
 @Component
-@RequiredArgsConstructor
 public class RankingScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(RankingScheduler.class);
     private final JDA jda;
     private final RankingService rankingService;
     private final String TARGET_CHANNEL_NAME = "주간-랭킹";
+
+    // 생성자를 직접 만들고, JDA 파라미터 앞에 @Lazy를 붙여서 JDA를 사용할 때 만듦
+    public RankingScheduler(@Lazy JDA jda, RankingService rankingService) {
+        this.jda = jda;
+        this.rankingService = rankingService;
+    }
 
     // 매주 월요일 오전 10시 (한국기준)에 실행
     @Scheduled(cron = "0 0 10 * * MON", zone ="Asia/Tokyo")

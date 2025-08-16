@@ -38,7 +38,7 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long>{ // íˆ
             "WHERE s.start_time >= :startDate AND s.end_time <= :endDate AND s.end_time IS NOT NULL " +
             "AND s.user_id != :excludeUserId " +
             "GROUP BY s.user_id " +
-            "ORDER BY SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)) DESC" +
+            "ORDER BY SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)) DESC " +
             "LIMIT 10",
             nativeQuery = true)
     List<Object[]> findRankingsByPeriod(@Param("startDate") LocalDateTime startDate,

@@ -14,13 +14,18 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//로그용
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @RequiredArgsConstructor
 public class RankingService {
 
+    private static final Logger logger = LoggerFactory.getLogger(RankingService.class); // Logger 추가
     private final StudyLogRepository studyLogRepository;
 
-    @Value("${discord.exclude-user-id")
+    @Value("${discord.exclude-user-id}")
     private String excludeUserId;
 
     // 이번주의 요청받은 시점까지의 랭킹을 표시함. !주간랭킹
@@ -30,6 +35,7 @@ public class RankingService {
 
         // DB로부터 순수 데이터(Object 배열의 리스트)를 받아옴
         List<Object[]> rawRankingData = studyLogRepository.findRankingsByPeriod(startOfWeek, endOfWeek, excludeUserId);
+        logger.info("주간 랭킹에서 제외할 사용자 ID: {}", excludeUserId);
 
         // 순수 데이터를 RankingDto 리스트로 변환
         return rawRankingData.stream()

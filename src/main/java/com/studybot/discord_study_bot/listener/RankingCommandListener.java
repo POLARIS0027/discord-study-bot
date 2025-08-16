@@ -23,7 +23,6 @@ public class RankingCommandListener extends ListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(RankingCommandListener.class);
     private final RankingService rankingService;
-    private JDA jda;
 
     // application.yml에서 discord.prefix 값을 가져와서 할당
     @Value("${discord.prefix}")
@@ -95,7 +94,7 @@ public class RankingCommandListener extends ListenerAdapter {
                     RankingDto ranker = weeklyRanking.get(i);
 
                     // userID로 User객체를 가져와서 최신 이름을 사용
-                    User user = jda.retrieveUserById(ranker.getUserId()).complete();
+                    User user = event.getJDA().retrieveUserById(ranker.getUserId()).complete();
                     String userName =user != null ? user.getEffectiveName() : "(알 수 없는 사용자)";
 
                     rankMessage.append(String.format("%d. %s - %s\n",

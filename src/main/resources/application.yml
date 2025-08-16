@@ -4,8 +4,6 @@ spring:
     active: local
 
   datasource:
-    url: jdbc:mysql://10.0.1.124:3306/study_bot_db?serverTimezone=Asia/Tokyo&characterEncoding=UTF-8
-    username: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

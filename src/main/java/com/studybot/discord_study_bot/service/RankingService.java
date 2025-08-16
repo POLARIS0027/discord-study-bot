@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 //로그용
@@ -35,7 +36,6 @@ public class RankingService {
 
         // DB로부터 순수 데이터(Object 배열의 리스트)를 받아옴
         List<Object[]> rawRankingData = studyLogRepository.findRankingsByPeriod(startOfWeek, endOfWeek, excludeUserId);
-        logger.info("주간 랭킹에서 제외할 사용자 ID: {}", excludeUserId);
 
         // 순수 데이터를 RankingDto 리스트로 변환
         return rawRankingData.stream()
@@ -65,5 +65,13 @@ public class RankingService {
                         ((BigDecimal) data[1]).longValue()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    // 개인 유저의 주간 공부시간을 가져오는 메서드
+    public Optional<Long> getWeeklyTotalStudyTimeForUser(String userId) {
+        LocalDateTime startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
+        LocalDateTime endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(23, 59, 59);
+
+        return studyLogRepository.findTotalDurationByUserIdAndPeriod(userId, startOfWeek, endOfWeek);
     }
 }

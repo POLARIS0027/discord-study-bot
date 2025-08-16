@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -111,39 +112,46 @@ public class RankingCommandListener extends ListenerAdapter {
             case "내랭킹" -> {
                 logger.info("{}님의 개인 정보 요청을 받았습니다.", author.getEffectiveName());
 
-                // 1. 이번 주 랭킹 데이터 가져오기
-                List<RankingDto> weeklyRanking = rankingService.getWeeklyRanking();
+                logger.info("{}님의 개인 정보 요청을 받았습니다.", author.getEffectiveName());
 
-                // 2. 랭킹에서 자기 순위 찾기
+                // 1. 10위까지의 랭킹 데이터 가져오기
+                List<RankingDto> weeklyRanking = rankingService.getWeeklyRanking();
                 int myRank = -1;
-                long myTotalStudyTime = 0;
-                // 닉네임 비교 대신 ID비교로
+
+                // 2. 10위 안에 내가 있는지 찾아보기
                 for (int i = 0; i < weeklyRanking.size(); i++) {
-                    // DB유저명과 자기 이름을 비교함
                     if (weeklyRanking.get(i).getUserId().equals(authorId)) {
                         myRank = i + 1;
-                        myTotalStudyTime = weeklyRanking.get(i).getTotalDuration();
                         break;
                     }
                 }
 
-                // 3. DM으로 보낼 메세지 생성
                 StringBuilder dmMessage = new StringBuilder();
                 dmMessage.append(String.format(" **%s님의 공부 기록**\n\n", author.getEffectiveName()));
 
-                // 1위일 경우
-                if (myRank == 1) {
-                    dmMessage.append(String.format("✍\uFE0F 이번주 공부시간: **%s**\n\n", formatDuration(myTotalStudyTime)));
-                    dmMessage.append(String.format("현재 %d명중  \uD83C\uDFC6 **%d위** 입니다.\n\n", weeklyRanking.size(), myRank));
-                    dmMessage.append(String.format("\uD83C\uDF89 누구보다 열심히 공부하는 %s! 1위를 유지하세요!! \uD83C\uDF89", author.getEffectiveName()));
-                } else if (myRank > 1) { // 1등은 아닐 경우
-                    dmMessage.append(String.format("✍\uFE0F 이번주 공부시간: **%s**\n\n", formatDuration(myTotalStudyTime)));
-                    dmMessage.append(String.format("현재 %d명중  \uD83C\uDFC6 **%d위** 입니다.\n\n", weeklyRanking.size(), myRank));
-                    dmMessage.append("좀더 달려서 1위를 노려봅시다!! \n 👍");
-                } else { // 기록이 없을 경우
-                    dmMessage.append("이번주엔 공부 안하는구나? \uD83D\uDC4D\n\n");
-                    dmMessage.append("다음주에도 안할예정이니?\n");
-                    dmMessage.append("오늘부터라도 ㄱㄱ \uD83D\uDE0E");
+                if (myRank != -1) { // 10위 안에 내가 있을 경우
+                    long myTotalStudyTime = weeklyRanking.get(myRank - 1).getTotalDuration();
+                    dmMessage.append(String.format("✍️ 이번주 공부시간: **%s**\n\n", formatDuration(myTotalStudyTime)));
+                    dmMessage.append(String.format("현재 %d명중 🏆 **%d위** 입니다.\n\n", weeklyRanking.size(), myRank));
+
+                    if (myRank == 1) {
+                        dmMessage.append(String.format("🎉 누구보다 열심히 공부하는 %s! 1위를 유지하세요!! 🎉", author.getEffectiveName()));
+                    } else {
+                        dmMessage.append("좀더 달려서 1위를 노려봅시다!! 👍");
+                    }
+                } else { // 10위 안에 내가 없을 경우
+                    // 공부시간이 있는데 랭킹엔 없거나 공부시간이 존재하지 않음
+                    Optional<Long> optionalTotalTime = rankingService.getWeeklyTotalStudyTimeForUser(authorId);
+
+                    if (optionalTotalTime.isPresent() && optionalTotalTime.get() > 0) { // 랭킹엔 없지만 공부 기록은 있을 때
+                        dmMessage.append(String.format("✍️ 이번주 공부시간: **%s**\n\n", formatDuration(optionalTotalTime.get())));
+                        dmMessage.append("🏆 현재 랭킹: **10위권 밖** 입니다.\n\n");
+                        dmMessage.append("아쉽지만 순위권 밖이라도 괜찮아! 꾸준히 하는 게 제일 중요해! 💪");
+                    } else { // 정말로 공부 기록이 없을 때
+                        dmMessage.append("이번주엔 공부 안하는구나? 👍\n\n");
+                        dmMessage.append("다음주에도 안할예정이니?\n");
+                        dmMessage.append("오늘부터라도 ㄱㄱ 😎");
+                    }
                 }
 
                 // 4. DM으로 발송

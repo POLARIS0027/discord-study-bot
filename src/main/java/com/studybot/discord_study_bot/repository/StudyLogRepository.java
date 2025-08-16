@@ -44,4 +44,18 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long>{ // �
     List<Object[]> findRankingsByPeriod(@Param("startDate") LocalDateTime startDate,
                                         @Param("endDate") LocalDateTime endDate,
                                         @Param("excludeUserId") String excludeUserId);
+
+    /**
+     * 이번 주의 개인 공부 시간 조회
+     * @param userId 유저 고유 ID
+     * @param startDate 시작일
+     * @param endDate 종료일
+     */
+    @Query(value = "SELECT SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)) " +
+            "FROM study_log s " +
+            "WHERE s.user_id = :userId AND s.start_time >= :startDate AND s.end_time <= :endDate AND s.end_time IS NOT NULL",
+            nativeQuery = true)
+    Optional<Long> findTotalDurationByUserIdAndPeriod(@Param("userId") String userId,
+                                                      @Param("startDate") LocalDateTime startDate,
+                                                      @Param("endDate") LocalDateTime endDate);
 }

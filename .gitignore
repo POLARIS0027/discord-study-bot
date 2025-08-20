@@ -36,6 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 
+#로그
+study-bot.log
+
 # 민감한 설정 파일
 application-local.yml
 application-prod.yml

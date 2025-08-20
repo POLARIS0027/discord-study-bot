@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +28,13 @@ public class JdaConfig {
     public JDA jda() throws InterruptedException{
         JDA jda = JDABuilder.createDefault(token)
                 // 음성감지 권한, 메세지 권한
-                .enableIntents(GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.MESSAGE_CONTENT)
+                .enableIntents(
+                        GatewayIntent.GUILD_VOICE_STATES,
+                        GatewayIntent.MESSAGE_CONTENT,
+                        GatewayIntent.GUILD_MEMBERS
+                )
+                .enableCache(CacheFlag.VOICE_STATE) // 음성 상태 캐시
+                .setMemberCachePolicy(MemberCachePolicy.VOICE) // 보이스 관련만
                 // Listener를 봇에 등록
                 .addEventListeners(voiceChannelListener, rankingCommandListener)
                 .build();

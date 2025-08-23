@@ -5,6 +5,8 @@ import com.studybot.discord_study_bot.dto.RankingDto;
 import com.studybot.discord_study_bot.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Guild;
 import org.springframework.beans.factory.annotation.Value;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -90,13 +92,23 @@ public class RankingCommandListener extends ListenerAdapter {
                 }
 
                 // DESC정렬로 DB에서 받아오니까, 순서대로 순회하면서 추가한다. 랭킹을 몇위까지 표시할지는 상담
+                Guild guild = event.getGuild();
                 StringBuilder rankMessage = new StringBuilder("🏆 이번 주 공부 시간 랭킹 🏆\n");
+
                 for (int i = 0; i < weeklyRanking.size(); i++) {
                     RankingDto ranker = weeklyRanking.get(i);
+                    String userName;
 
-                    // userID로 User객체를 가져와서 최신 이름을 사용
-                    User user = event.getJDA().retrieveUserById(ranker.getUserId()).complete();
-                    String userName =user != null ? user.getEffectiveName() : "(알 수 없는 사용자)";
+                    try {
+                        // userId로 서버에서 멤버 정보를 가져옴
+                        Member member = guild.retrieveMemberById(ranker.getUserId()).complete();
+                        // 멤버의 서버 별명을 가져옴
+                        userName = member.getEffectiveName();
+                    } catch (Exception e) {
+                        // 유저가 서버에 없는 경우
+                        userName = "(서버에 없는 사용자)";
+                        logger.warn("{} ID를 가진 유저가 서버에 없어서 이름을 찾을 수 없습니다.", ranker.getUserId());
+                    }
 
                     rankMessage.append(String.format("%d. %s - %s\n",
                             i + 1,
@@ -110,8 +122,6 @@ public class RankingCommandListener extends ListenerAdapter {
                 // Todo:월간 랭킹 로직 작성
                     event.getChannel().sendMessage("월간 랭킹 기능은 준비중입니다").queue();
             case "내랭킹" -> {
-                logger.info("{}님의 개인 정보 요청을 받았습니다.", author.getEffectiveName());
-
                 logger.info("{}님의 개인 정보 요청을 받았습니다.", author.getEffectiveName());
 
                 // 1. 10위까지의 랭킹 데이터 가져오기

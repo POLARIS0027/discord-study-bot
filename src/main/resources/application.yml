@@ -28,3 +28,8 @@ discord:
   token:
   prefix: "!" # 봇 명령어 접두사
   exclude-user-id: "794417295468003399" # 제외할 userId
+
+# Event 기간 설정
+event:
+  start-date: "2024-10-01"
+  end-date: "2024-12-31"

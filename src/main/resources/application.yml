@@ -31,5 +31,5 @@ discord:
 
 # Event 기간 설정
 event:
-  start-date: "2024-10-01"
-  end-date: "2024-12-31"
+  start-date: "2025-10-01"
+  end-date: "2025-12-31"

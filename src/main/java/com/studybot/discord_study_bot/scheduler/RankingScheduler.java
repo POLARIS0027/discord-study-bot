@@ -127,7 +127,7 @@ public class RankingScheduler {
         eb.setColor(new Color(0xFF6B6B)); // 빨간색!
 
         StringBuilder description = new StringBuilder();
-        description.append("**📅 이벤트 기간: 2024년 10월 1일 ~ 12월 31일**\n\n");
+        description.append("이벤트 기간: 2025년 10월 1일 ~ 12월 31일\n\n");
 
         // 단일 서버용: 첫 번째 채널의 길드 사용
         Guild guild = channels.get(0).getGuild();
@@ -158,7 +158,7 @@ public class RankingScheduler {
             }
         }
         eb.setDescription(description.toString());
-        eb.setFooter("이벤트 상품을 향해 달려봐요! 🏃‍♂️💨");
+        eb.setFooter("이벤트 상품을 향해 달려봐요! 🍗🏃‍♂️💨");
 
         // 각 서버의 "주간-랭킹" 채널에 메시지 전송
         for (TextChannel channel : channels) {

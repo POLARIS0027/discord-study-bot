@@ -124,7 +124,7 @@ public class RankingCommandListener extends ListenerAdapter {
 
                 // 이벤트 기간 체크
                 if (!rankingService.isEventPeriod()) {
-                    event.getChannel().sendMessage("현재 이벤트 기간이 아닙니다. (이벤트 기간: 2024년 10월 1일 ~ 12월 31일)").queue();
+                    event.getChannel().sendMessage("현재 이벤트 기간이 아닙니다. (이벤트 기간: 2025년 10월 1일 ~ 12월 31일)").queue();
                     return;
                 }
 
@@ -140,9 +140,9 @@ public class RankingCommandListener extends ListenerAdapter {
                 EmbedBuilder eb = new EmbedBuilder();
                 eb.setTitle("🎉 이벤트 누계 공부 시간 랭킹 🎉");
                 eb.setColor(new Color(0xFF6B6B)); // 빨간색!
-                eb.setDescription("**📅 이벤트 기간: 2024년 10월 1일 ~ 12월 31일**\n\n상위 10명의 누계 공부 시간입니다!");
 
-                StringBuilder rankMessage = new StringBuilder();
+                StringBuilder description = new StringBuilder();
+                description.append("이벤트 기간: 2025년 10월 1일 ~ 12월 31일\n\n");
 
                 for (int i = 0; i < eventRanking.size(); i++) {
                     RankingDto ranker = eventRanking.get(i);
@@ -159,14 +159,14 @@ public class RankingCommandListener extends ListenerAdapter {
                         logger.warn("{} ID를 가진 유저가 서버에 없어서 이름을 찾을 수 없습니다.", ranker.getUserId());
                     }
 
-                    rankMessage.append(String.format("%d. %s - %s\n",
+                    description.append(String.format("%d. %s - %s\n",
                             i + 1,
                             userName,
                             formatDuration(ranker.getTotalDuration())));
                 }
 
-                eb.addField("랭킹", rankMessage.toString(), false);
-                eb.setFooter("이벤트 상품을 향해 달려봐요! 🏃‍♂️💨");
+                eb.setDescription(description.toString());
+                eb.setFooter("이벤트 상품을 향해 달려봐요! 🍗🏃‍♂️💨");
 
                 event.getChannel().sendMessageEmbeds(eb.build()).queue();
             }

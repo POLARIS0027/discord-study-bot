@@ -1,0 +1,44 @@
+services:
+  prod-app-blue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: discord-study-bot:prod-blue
+    platform: linux/arm64
+    container_name: study-bot-prod-app-blue
+    restart: "no"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://study-bot-prod-mysql:3306/study_bot_db?serverTimezone=Asia/Tokyo&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: study_bot_user
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      TZ: Asia/Seoul
+      JAVA_OPTS: "-Xms512m -Xmx1536m"
+
+    volumes:
+      - ../logs:/app/logs
+
+    networks:
+      - prod-network
+
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pgrep -f java || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  prod-network:
+    name: study-bot-prod-network
+    external: true

@@ -20,102 +20,111 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RankingService {
 
-    private final StudyLogRepository studyLogRepository;
+        private final StudyLogRepository studyLogRepository;
 
-    @Value("${discord.exclude-user-id}")
-    private String excludeUserId;
+        @Value("${discord.exclude-user-id}")
+        private String excludeUserId;
 
-    @Value("${event.start-date}")
-    private String eventStartDate;
+        @Value("${event.start-date}")
+        private String eventStartDate;
 
-    @Value("${event.end-date}")
-    private String eventEndDate;
+        @Value("${event.end-date}")
+        private String eventEndDate;
 
-    // 이번주의 요청받은 시점까지의 랭킹을 표시함. !주간랭킹
-    public List<RankingDto> getWeeklyRanking() {
-        LocalDateTime startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                .atStartOfDay();
-        LocalDateTime endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(23, 59,
-                59);
+        // 이번주의 요청받은 시점까지의 랭킹을 표시함. !주간랭킹
+        public List<RankingDto> getWeeklyRanking(String guildId) {
+                LocalDateTime startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                                .atStartOfDay();
+                LocalDateTime endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(
+                                23, 59,
+                                59);
 
-        // DB로부터 순수 데이터(Object 배열의 리스트)를 받아옴
-        List<Object[]> rawRankingData = studyLogRepository.findRankingsByPeriod(startOfWeek, endOfWeek, excludeUserId);
+                // DB로부터 순수 데이터(Object 배열의 리스트)를 받아옴
+                List<Object[]> rawRankingData = studyLogRepository.findRankingsByPeriodAndGuild(guildId, startOfWeek,
+                                endOfWeek, excludeUserId);
 
-        // 순수 데이터를 RankingDto 리스트로 변환
-        return rawRankingData.stream()
-                .map(data -> new RankingDto(
-                        (String) data[0], // 첫 번째 값(user_id)
-                        ((BigDecimal) data[1]).longValue() // 두 번째 값(SUM 결과)은 BigDecimal -> Long으로 변환
-                ))
-                .collect(Collectors.toList());
-    }
+                // 순수 데이터를 RankingDto 리스트로 변환
+                return rawRankingData.stream()
+                                .map(data -> new RankingDto(
+                                                (String) data[0], // 첫 번째 값(user_id)
+                                                ((BigDecimal) data[1]).longValue() // 두 번째 값(SUM 결과)은 BigDecimal ->
+                                                                                   // Long으로 변환
+                                ))
+                                .collect(Collectors.toList());
+        }
 
-    // 지난주 랭킹을 계산함
-    public List<RankingDto> getPreviousWeeklyRanking() {
-        // 지난주 일요일 날짜를 구함
-        LocalDate lastSunday = LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
-        // 지난 주 일요일이 속한 주의 월요일 날짜를 구함
-        LocalDate lastMonday = lastSunday.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        // 지난주 랭킹을 계산함
+        public List<RankingDto> getPreviousWeeklyRanking(String guildId) {
+                // 지난주 일요일 날짜를 구함
+                LocalDate lastSunday = LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+                // 지난 주 일요일이 속한 주의 월요일 날짜를 구함
+                LocalDate lastMonday = lastSunday.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-        // 집계구간 적용. 지난주 월 0시 0분~지난주 일 23시 59분까지
-        LocalDateTime startOfLastWeek = lastMonday.atStartOfDay();
-        LocalDateTime endOfLastWeek = lastSunday.atTime(23, 59, 59);
+                // 집계구간 적용. 지난주 월 0시 0분~지난주 일 23시 59분까지
+                LocalDateTime startOfLastWeek = lastMonday.atStartOfDay();
+                LocalDateTime endOfLastWeek = lastSunday.atTime(23, 59, 59);
 
-        // getWeeklyRanking 사용
-        List<Object[]> rawRankingData = studyLogRepository.findRankingsByPeriod(startOfLastWeek, endOfLastWeek,
-                excludeUserId);
-        return rawRankingData.stream()
-                .map(data -> new RankingDto(
-                        (String) data[0],
-                        ((BigDecimal) data[1]).longValue()))
-                .collect(Collectors.toList());
-    }
+                // getWeeklyRanking 사용
+                List<Object[]> rawRankingData = studyLogRepository.findRankingsByPeriodAndGuild(guildId,
+                                startOfLastWeek, endOfLastWeek,
+                                excludeUserId);
+                return rawRankingData.stream()
+                                .map(data -> new RankingDto(
+                                                (String) data[0],
+                                                ((BigDecimal) data[1]).longValue()))
+                                .collect(Collectors.toList());
+        }
 
-    // 개인 유저의 주간 공부시간을 가져오는 메서드
-    public Optional<Long> getWeeklyTotalStudyTimeForUser(String userId) {
-        LocalDateTime startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                .atStartOfDay();
-        LocalDateTime endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(23, 59,
-                59);
+        // 개인 유저의 주간 공부시간을 가져오는 메서드
+        public Optional<Long> getWeeklyTotalStudyTimeForUser(String guildId, String userId) {
+                LocalDateTime startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                                .atStartOfDay();
+                LocalDateTime endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(
+                                23, 59,
+                                59);
 
-        return studyLogRepository.findTotalDurationByUserIdAndPeriod(userId, startOfWeek, endOfWeek);
-    }
+                return studyLogRepository.findTotalDurationByUserIdPeriodAndGuild(guildId, userId, startOfWeek,
+                                endOfWeek);
+        }
 
-    // 이벤트 기간의 누계 랭킹을 가져오는 메서드
-    public List<RankingDto> getEventRanking() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime startOfEvent = LocalDate.parse(eventStartDate, formatter).atStartOfDay();
-        LocalDateTime endOfEvent = LocalDate.parse(eventEndDate, formatter).atTime(23, 59, 59);
+        // 이벤트 기간의 누계 랭킹을 가져오는 메서드
+        public List<RankingDto> getEventRanking(String guildId) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDateTime startOfEvent = LocalDate.parse(eventStartDate, formatter).atStartOfDay();
+                LocalDateTime endOfEvent = LocalDate.parse(eventEndDate, formatter).atTime(23, 59, 59);
 
-        // DB로부터 순수 데이터(Object 배열의 리스트)를 받아옴
-        List<Object[]> rawRankingData = studyLogRepository.findRankingsByPeriod(startOfEvent, endOfEvent,
-                excludeUserId);
+                // DB로부터 순수 데이터(Object 배열의 리스트)를 받아옴
+                List<Object[]> rawRankingData = studyLogRepository.findRankingsByPeriodAndGuild(guildId, startOfEvent,
+                                endOfEvent,
+                                excludeUserId);
 
-        // 순수 데이터를 RankingDto 리스트로 변환
-        return rawRankingData.stream()
-                .map(data -> new RankingDto(
-                        (String) data[0], // 첫 번째 값(user_id)
-                        ((BigDecimal) data[1]).longValue() // 두 번째 값(SUM 결과)은 BigDecimal -> Long으로 변환
-                ))
-                .collect(Collectors.toList());
-    }
+                // 순수 데이터를 RankingDto 리스트로 변환
+                return rawRankingData.stream()
+                                .map(data -> new RankingDto(
+                                                (String) data[0], // 첫 번째 값(user_id)
+                                                ((BigDecimal) data[1]).longValue() // 두 번째 값(SUM 결과)은 BigDecimal ->
+                                                                                   // Long으로 변환
+                                ))
+                                .collect(Collectors.toList());
+        }
 
-    // 개인 유저의 이벤트 기간 공부시간을 가져오는 메서드
-    public Optional<Long> getEventTotalStudyTimeForUser(String userId) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime startOfEvent = LocalDate.parse(eventStartDate, formatter).atStartOfDay();
-        LocalDateTime endOfEvent = LocalDate.parse(eventEndDate, formatter).atTime(23, 59, 59);
+        // 개인 유저의 이벤트 기간 공부시간을 가져오는 메서드
+        public Optional<Long> getEventTotalStudyTimeForUser(String guildId, String userId) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDateTime startOfEvent = LocalDate.parse(eventStartDate, formatter).atStartOfDay();
+                LocalDateTime endOfEvent = LocalDate.parse(eventEndDate, formatter).atTime(23, 59, 59);
 
-        return studyLogRepository.findTotalDurationByUserIdAndPeriod(userId, startOfEvent, endOfEvent);
-    }
+                return studyLogRepository.findTotalDurationByUserIdPeriodAndGuild(guildId, userId, startOfEvent,
+                                endOfEvent);
+        }
 
-    // 현재가 이벤트 기간인지 확인하는 메서드
-    public boolean isEventPeriod() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate startOfEvent = LocalDate.parse(eventStartDate, formatter);
-        LocalDate endOfEvent = LocalDate.parse(eventEndDate, formatter);
-        LocalDate today = LocalDate.now();
+        // 현재가 이벤트 기간인지 확인하는 메서드
+        public boolean isEventPeriod() {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate startOfEvent = LocalDate.parse(eventStartDate, formatter);
+                LocalDate endOfEvent = LocalDate.parse(eventEndDate, formatter);
+                LocalDate today = LocalDate.now();
 
-        return !today.isBefore(startOfEvent) && !today.isAfter(endOfEvent);
-    }
+                return !today.isBefore(startOfEvent) && !today.isAfter(endOfEvent);
+        }
 }

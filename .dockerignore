@@ -1,0 +1,44 @@
+# Gradle
+.gradle/
+build/
+!build/libs/*.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Git
+.git/
+.gitignore
+
+# 로그
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 임시 파일
+*.tmp
+*.bak
+*.swp
+
+# 백업
+*.sql
+*.tar.gz
+*.zip
+
+# 환경 변수
+.env
+
+# 마이그레이션 관련
+dev/
+prod/
+scripts/
+shared/
+

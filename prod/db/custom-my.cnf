@@ -1,0 +1,47 @@
+[mysqld]
+# 기본 설정
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# 성능 최적화 (24GB RAM 혼합 서버용)
+performance_schema = off
+
+# InnoDB 버퍼 풀 (64MB → 4GB, 62배 향상!)
+innodb_buffer_pool_size = 4G
+innodb_buffer_pool_instances = 4
+
+# 연결 수
+max_connections = 200
+
+# 테이블 캐시
+table_open_cache = 2000
+table_definition_cache = 1000
+
+# InnoDB 로그 설정
+innodb_log_file_size = 256M
+innodb_log_buffer_size = 16M
+innodb_flush_log_at_trx_commit = 2
+innodb_flush_method = O_DIRECT
+
+# 임시 테이블
+tmp_table_size = 128M
+max_heap_table_size = 128M
+
+# 정렬/읽기 버퍼
+sort_buffer_size = 2M
+read_buffer_size = 1M
+read_rnd_buffer_size = 2M
+join_buffer_size = 2M
+
+# 스레드 캐시
+thread_cache_size = 50
+
+# 바이너리 로그 비활성화
+skip-log-bin
+
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4
+

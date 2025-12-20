@@ -1,0 +1,81 @@
+services:
+  dev-mysql:
+    image: mysql:8.0.43
+    platform: linux/arm64
+    container_name: study-bot-dev-mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: study_bot_dev_db
+      MYSQL_USER: study_bot_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Seoul
+
+    ports:
+      - "127.0.0.1:3307:3306"
+
+    volumes:
+      - dev-mysql-data:/var/lib/mysql
+      - ./custom-my.cnf:/etc/mysql/conf.d/custom.cnf
+
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+    networks:
+      - dev-network
+
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dev-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: discord-study-bot:dev
+    platform: linux/arm64
+    container_name: study-bot-dev-app
+    restart: unless-stopped
+
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:mysql://dev-mysql:3306/study_bot_dev_db?serverTimezone=Asia/Tokyo
+      SPRING_DATASOURCE_USERNAME: study_bot_user
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      DISCORD_TOKEN: ${DEV_DISCORD_TOKEN}
+      TZ: Asia/Seoul
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+
+    depends_on:
+      dev-mysql:
+        condition: service_healthy
+
+    volumes:
+      - ./logs:/app/logs
+
+    networks:
+      - dev-network
+
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+          cpus: '0.5'
+
+networks:
+  dev-network:
+    name: study-bot-dev-network
+
+volumes:
+  dev-mysql-data:
+    name: study-bot-dev-mysql-data

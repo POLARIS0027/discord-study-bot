@@ -1,10 +1,11 @@
 spring:
-  # local 프로필 설정
+  # 프로필 설정 (local, dev, prod 중 선택)
   profiles:
     active: local
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    # 타임존과 UTF-8 인코딩 설정은 각 프로파일(local, prod)에서 설정
 
   jpa:
     hibernate:
@@ -33,3 +34,8 @@ discord:
 event:
   start-date: "2025-10-01"
   end-date: "2025-12-31"
+
+# 데이터 마이그레이션 설정 (기존 데이터를 마이그레이션할 때만 사용)
+migration:
+  legacy-guild-id: "1234567890" # 기존 서버의 Discord Guild ID를 입력하세요
+  legacy-guild-name: "lize" # 기존 서버 이름을 입력하세요

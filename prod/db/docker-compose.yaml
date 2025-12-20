@@ -1,0 +1,50 @@
+services:
+  prod-mysql:
+    image: mysql:8.0.43
+    platform: linux/arm64
+    container_name: study-bot-prod-mysql
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: study_bot_db
+      MYSQL_USER: study_bot_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Seoul
+
+    ports:
+      - "127.0.0.1:3306:3306"
+
+    volumes:
+      - prod-mysql-data:/var/lib/mysql
+      - ./custom-my.cnf:/etc/mysql/conf.d/custom.cnf
+
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+    networks:
+      - prod-network
+
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+          cpus: '2.0'
+        reservations:
+          memory: 4G
+
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  prod-network:
+    name: study-bot-prod-network
+
+volumes:
+  prod-mysql-data:
+    name: study-bot-prod-mysql-data

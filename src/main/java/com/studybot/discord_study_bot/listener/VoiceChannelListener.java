@@ -93,11 +93,6 @@ public class VoiceChannelListener extends ListenerAdapter {
 
         if (joinedToChannel && joinedChannel != null) {
             logger.info("[{}] {}님이 음성 채널에 들어왔습니다.", guildName, userName);
-            
-            // 공유 뽀모도로 진행 중인 채널인지 확인
-            String lang = "ko"; // TODO: 사용자 언어 감지
-            sharedPomodoroService.sendJoinInvitationOnChannelJoin(user, joinedChannel.getId(), 
-                joinedChannel.getName(), lang);
         }
         
         if (leftFromChannel) {

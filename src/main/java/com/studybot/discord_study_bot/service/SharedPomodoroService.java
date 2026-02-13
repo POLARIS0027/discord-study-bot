@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -66,16 +65,6 @@ public class SharedPomodoroService {
 
         logger.info("[채널 ID: {}] 공유 뽀모도로 시작: {}분 공부 / {}분 휴식", 
             voiceChannelId, studyMinutes, breakMinutes);
-
-        // 음성 채널의 모든 사용자에게 초대 DM
-        VoiceChannel voiceChannel = jda.getVoiceChannelById(voiceChannelId);
-        if (voiceChannel != null) {
-            for (Member member : voiceChannel.getMembers()) {
-                if (!member.getUser().isBot()) {
-                    sendJoinInvitation(member.getUser(), session, voiceChannel.getName(), lang);
-                }
-            }
-        }
 
         // 텍스트 채널에 타이머 메시지 표시
         sendSharedTimerMessage(session, lang);
@@ -287,30 +276,6 @@ public class SharedPomodoroService {
     }
 
     /**
-     * 참여 초대 DM 전송
-     */
-    private void sendJoinInvitation(User user, SharedPomodoroSession session, String channelName, String lang) {
-        user.openPrivateChannel().queue(dm -> {
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle(MessageProvider.get(lang, "pomodoro.title"));
-            eb.setColor(new Color(0x5865F2));
-            eb.setDescription(MessageProvider.format(lang, "shared.invite", channelName));
-
-            Button joinButton = Button.success("shared_join_" + session.getChannelId(), 
-                MessageProvider.get(lang, "shared.btn.join"));
-            Button ignoreButton = Button.secondary("shared_ignore", 
-                MessageProvider.get(lang, "pomodoro.btn.stop"));
-
-            dm.sendMessageEmbeds(eb.build())
-                .addActionRow(joinButton, ignoreButton)
-                .queue(
-                    success -> logger.info("{}에게 참여 초대 DM 전송 완료", user.getName()),
-                    error -> logger.warn("{}에게 DM 전송 실패", user.getName())
-                );
-        });
-    }
-
-    /**
      * 공유 타이머 메시지 전송
      */
     private void sendSharedTimerMessage(SharedPomodoroSession session, String lang) {
@@ -462,27 +427,4 @@ public class SharedPomodoroService {
         return eb;
     }
 
-    /**
-     * 음성 채널 입장 시 초대 전송
-     */
-    public void sendJoinInvitationOnChannelJoin(User user, String voiceChannelId, String channelName, String lang) {
-        SharedPomodoroSession session = activeTimers.get(voiceChannelId);
-        if (session != null && !session.hasParticipant(user.getId())) {
-            user.openPrivateChannel().queue(dm -> {
-                EmbedBuilder eb = new EmbedBuilder();
-                eb.setTitle(MessageProvider.get(lang, "pomodoro.title"));
-                eb.setColor(new Color(0x5865F2));
-                eb.setDescription(MessageProvider.format(lang, "shared.join_during", channelName));
-
-                Button joinButton = Button.success("shared_join_" + voiceChannelId, 
-                    MessageProvider.get(lang, "shared.btn.join"));
-                Button ignoreButton = Button.secondary("shared_ignore", 
-                    "나중에");
-
-                dm.sendMessageEmbeds(eb.build())
-                    .addActionRow(joinButton, ignoreButton)
-                    .queue();
-            });
-        }
-    }
 }

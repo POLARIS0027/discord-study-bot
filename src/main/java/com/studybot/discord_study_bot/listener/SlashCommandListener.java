@@ -3,13 +3,16 @@ package com.studybot.discord_study_bot.listener;
 import com.studybot.discord_study_bot.dto.RankingDto;
 import com.studybot.discord_study_bot.i18n.MessageProvider;
 import com.studybot.discord_study_bot.service.RankingService;
+import com.studybot.discord_study_bot.service.SharedPomodoroService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(SlashCommandListener.class);
     private final RankingService rankingService;
+    private final SharedPomodoroService sharedPomodoroService;
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
@@ -62,6 +66,7 @@ public class SlashCommandListener extends ListenerAdapter {
             case "event" -> handleEventRanking(event, guildId, guild, lang);
             case "myrank" -> handleMyRank(event, guildId, authorId, author, lang);
             case "monthly" -> handleMonthly(event, guildId, guild, lang);
+            case "pomodoro-shared" -> handleSharedPomodoro(event, guildId, author, lang);
             default -> event.reply("알 수 없는 명령어입니다.").setEphemeral(true).queue();
         }
     }
@@ -356,6 +361,55 @@ public class SlashCommandListener extends ListenerAdapter {
         eb.setFooter(MessageProvider.get(lang, "monthly.footer"));
 
         event.getHook().sendMessageEmbeds(eb.build()).queue();
+    }
+
+    // 공유 뽀모도로 처리
+    private void handleSharedPomodoro(SlashCommandInteractionEvent event, String guildId, User author, String lang) {
+        logger.info("공유 뽀모도로 시작 요청을 받았습니다.");
+
+        // 음성 채널에 연결되어 있는지 확인
+        Member member = event.getMember();
+        if (member == null || member.getVoiceState() == null || !member.getVoiceState().inAudioChannel()) {
+            event.reply(MessageProvider.get(lang, "pomodoro.not_in_voice")).setEphemeral(true).queue();
+            return;
+        }
+
+        if (member.getVoiceState().getChannel() == null) {
+            event.reply(MessageProvider.get(lang, "pomodoro.not_in_voice")).setEphemeral(true).queue();
+            return;
+        }
+
+        VoiceChannel voiceChannel = member.getVoiceState().getChannel().asVoiceChannel();
+        String voiceChannelId = voiceChannel.getId();
+        String textChannelId = event.getChannel().getId();
+
+        // 옵션 파싱
+        OptionMapping studyOption = event.getOption("study");
+        OptionMapping breakOption = event.getOption("break");
+        OptionMapping autoStartOption = event.getOption("autostart");
+
+        int studyMinutes = studyOption != null ? studyOption.getAsInt() : 25;
+        int breakMinutes = breakOption != null ? breakOption.getAsInt() : 5;
+        boolean autoStart = autoStartOption != null && autoStartOption.getAsBoolean();
+
+        // 입력값 검증
+        if (studyMinutes < 1 || studyMinutes > 120) {
+            event.reply(MessageProvider.get(lang, "pomodoro.invalid_study_time")).setEphemeral(true).queue();
+            return;
+        }
+        if (breakMinutes < 1 || breakMinutes > 30) {
+            event.reply(MessageProvider.get(lang, "pomodoro.invalid_break_time")).setEphemeral(true).queue();
+            return;
+        }
+
+        // 공유 타이머 시작
+        sharedPomodoroService.startSharedTimer(voiceChannelId, guildId, textChannelId, 
+                studyMinutes, breakMinutes, autoStart, lang);
+
+        event.reply(MessageProvider.format(lang, "pomodoro.shared_started", 
+                voiceChannel.getName(), studyMinutes, breakMinutes))
+                .setEphemeral(true)
+                .queue();
     }
 
     // 초를 "O시간 O분 O초" 또는 "O時間O分O秒" 형식으로 변환하는 메서드

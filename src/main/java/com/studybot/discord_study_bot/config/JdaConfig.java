@@ -1,5 +1,6 @@
 package com.studybot.discord_study_bot.config;
 
+import com.studybot.discord_study_bot.listener.PomodoroButtonListener;
 import com.studybot.discord_study_bot.listener.SlashCommandListener;
 import com.studybot.discord_study_bot.listener.VoiceChannelListener;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class JdaConfig {
 
     private final VoiceChannelListener voiceChannelListener;
     private final SlashCommandListener slashCommandListener;
+    private final PomodoroButtonListener pomodoroButtonListener;
 
     @Bean // JDA 객체를 spring이 관리하도록 함
     public JDA jda() throws InterruptedException{
@@ -35,7 +37,7 @@ public class JdaConfig {
                 .enableCache(CacheFlag.VOICE_STATE) // 음성 상태 캐시
                 .setMemberCachePolicy(MemberCachePolicy.VOICE) // 보이스 관련만
                 // Listener를 봇에 등록
-                .addEventListeners(voiceChannelListener, slashCommandListener)
+                .addEventListeners(voiceChannelListener, slashCommandListener, pomodoroButtonListener)
                 .build();
 
         // 봇 빌드 대기

@@ -64,7 +64,42 @@ public class MessageProvider {
                     // 시간 포맷
                     Map.entry("time.hour", "%d시간 %d분 %d초"),
                     Map.entry("time.minute", "%d분 %d초"),
-                    Map.entry("time.second", "%d초")),
+                    Map.entry("time.second", "%d초"),
+
+                    // 뽀모도로
+                    Map.entry("pomodoro.title", "🍅 뽀모도로 타이머"),
+                    Map.entry("pomodoro.study_phase", "🔴 **공부 시간**"),
+                    Map.entry("pomodoro.break_phase", "🟢 **휴식 시간**"),
+                    Map.entry("pomodoro.long_break_phase", "🟢 **긴 휴식**"),
+                    Map.entry("pomodoro.paused", "⏸️ **일시정지 중**"),
+                    Map.entry("pomodoro.remaining_time", "⏰ 남은 시간: **%s** / %s"),
+                    Map.entry("pomodoro.remaining_time_paused", "⏰ 남은 시간: **%s**"),
+                    Map.entry("pomodoro.set_progress", "📊 진행도: %d/%d 세트"),
+                    Map.entry("pomodoro.set_complete", "✅ 완료: %d/%d 세트"),
+                    Map.entry("pomodoro.footer", "뽀모도로 타이머로 집중력 UP! 🔥"),
+                    Map.entry("pomodoro.study_complete", "🎉 공부 시간 완료! 잠시 휴식하세요."),
+                    Map.entry("pomodoro.break_complete", "✅ 휴식 완료! 다시 공부를 시작하세요!"),
+                    Map.entry("pomodoro.stopped", "뽀모도로 타이머가 중지되었습니다."),
+                    Map.entry("pomodoro.paused_msg", "타이머가 일시정지되었습니다."),
+                    Map.entry("pomodoro.resumed", "타이머가 재개되었습니다."),
+                    Map.entry("pomodoro.ignored", "초대를 무시했습니다."),
+                    Map.entry("pomodoro.not_in_voice", "음성 채널에 먼저 입장해주세요!"),
+                    Map.entry("pomodoro.invalid_study_time", "공부 시간은 1~120분 사이로 설정해주세요."),
+                    Map.entry("pomodoro.invalid_break_time", "휴식 시간은 1~30분 사이로 설정해주세요."),
+                    Map.entry("pomodoro.shared_started", "**%s** 채널에서 공유 뽀모도로를 시작했습니다! (%d분 공부 / %d분 휴식)"),
+
+                    // 공유 뽀모도로
+                    Map.entry("shared.pomodoro_title", "🍅 공유 뽀모도로: %s"),
+                    Map.entry("shared.invite", "**%s** 음성 채널에서 공유 뽀모도로가 시작되었습니다!\n\n참여하시겠습니까?"),
+                    Map.entry("shared.join_during", "**%s** 채널에서 진행 중인 공유 뽀모도로에 참여하시겠습니까?"),
+                    Map.entry("shared.participants", "👥 **참여자 (%d명)**"),
+                    Map.entry("shared.joined", "공유 뽀모도로에 참여했습니다!"),
+                    Map.entry("shared.left", "공유 뽀모도로에서 나갔습니다."),
+                    Map.entry("shared.btn.join", "참여하기"),
+                    Map.entry("shared.btn.leave", "나가기"),
+                    Map.entry("shared.btn.stop", "중지"),
+                    Map.entry("pomodoro.btn.pause", "일시정지"),
+                    Map.entry("pomodoro.btn.resume", "재개")),
 
             "ja", Map.ofEntries(
                     // ヘルプ
@@ -125,7 +160,42 @@ public class MessageProvider {
                     // 時間フォーマット
                     Map.entry("time.hour", "%d時間%d分%d秒"),
                     Map.entry("time.minute", "%d分%d秒"),
-                    Map.entry("time.second", "%d秒")));
+                    Map.entry("time.second", "%d秒"),
+
+                    // ポモドーロ
+                    Map.entry("pomodoro.title", "🍅 ポモドーロタイマー"),
+                    Map.entry("pomodoro.study_phase", "🔴 **勉強時間**"),
+                    Map.entry("pomodoro.break_phase", "🟢 **休憩時間**"),
+                    Map.entry("pomodoro.long_break_phase", "🟢 **長い休憩**"),
+                    Map.entry("pomodoro.paused", "⏸️ **一時停止中**"),
+                    Map.entry("pomodoro.remaining_time", "⏰ 残り時間: **%s** / %s"),
+                    Map.entry("pomodoro.remaining_time_paused", "⏰ 残り時間: **%s**"),
+                    Map.entry("pomodoro.set_progress", "📊 進捗: %d/%d セット"),
+                    Map.entry("pomodoro.set_complete", "✅ 完了: %d/%d セット"),
+                    Map.entry("pomodoro.footer", "ポモドーロタイマーで集中力UP！🔥"),
+                    Map.entry("pomodoro.study_complete", "🎉 勉強時間終了！少し休憩しましょう。"),
+                    Map.entry("pomodoro.break_complete", "✅ 休憩終了！再び勉強を始めましょう！"),
+                    Map.entry("pomodoro.stopped", "ポモドーロタイマーが停止されました。"),
+                    Map.entry("pomodoro.paused_msg", "タイマーが一時停止されました。"),
+                    Map.entry("pomodoro.resumed", "タイマーが再開されました。"),
+                    Map.entry("pomodoro.ignored", "招待を無視しました。"),
+                    Map.entry("pomodoro.not_in_voice", "まずボイスチャンネルに参加してください！"),
+                    Map.entry("pomodoro.invalid_study_time", "勉強時間は1～120分の間で設定してください。"),
+                    Map.entry("pomodoro.invalid_break_time", "休憩時間は1～30分の間で設定してください。"),
+                    Map.entry("pomodoro.shared_started", "**%s** チャンネルで共有ポモドーロを開始しました！（%d分勉強 / %d分休憩）"),
+
+                    // 共有ポモドーロ
+                    Map.entry("shared.pomodoro_title", "🍅 共有ポモドーロ: %s"),
+                    Map.entry("shared.invite", "**%s** ボイスチャンネルで共有ポモドーロが開始されました！\n\n参加しますか？"),
+                    Map.entry("shared.join_during", "**%s** チャンネルで進行中の共有ポモドーロに参加しますか？"),
+                    Map.entry("shared.participants", "👥 **参加者 (%d名)**"),
+                    Map.entry("shared.joined", "共有ポモドーロに参加しました！"),
+                    Map.entry("shared.left", "共有ポモドーロから退出しました。"),
+                    Map.entry("shared.btn.join", "参加する"),
+                    Map.entry("shared.btn.leave", "退出"),
+                    Map.entry("shared.btn.stop", "停止"),
+                    Map.entry("pomodoro.btn.pause", "一時停止"),
+                    Map.entry("pomodoro.btn.resume", "再開")));
 
     /**
      * 언어 코드와 키로 메시지를 가져옴

@@ -94,16 +94,34 @@ public class SlashCommandRegistrar {
                 ))
         );
 
-        // 6. /monthly - 월간 랭킹 (준비 중)
-        commands.add(Commands.slash("monthly", "Show monthly study time ranking (coming soon)")
+        // 6. /monthly - 월간 랭킹
+        commands.add(Commands.slash("monthly", "Show monthly study time ranking")
                 .setNameLocalizations(Map.of(
                         DiscordLocale.KOREAN, "월간랭킹",
                         DiscordLocale.JAPANESE, "月間ランキング"
                 ))
                 .setDescriptionLocalizations(Map.of(
-                        DiscordLocale.KOREAN, "월간 공부 시간 랭킹을 표시합니다 (준비 중)",
-                        DiscordLocale.JAPANESE, "月間勉強時間ランキングを表示します（準備中）"
+                        DiscordLocale.KOREAN, "월간 공부 시간 랭킹을 표시합니다",
+                        DiscordLocale.JAPANESE, "月間勉強時間ランキングを表示します"
                 ))
+        );
+
+        // 7. /pomodoro-shared - 공유 뽀모도로
+        commands.add(Commands.slash("pomodoro-shared", "Start shared pomodoro timer in voice channel")
+                .setNameLocalizations(Map.of(
+                        DiscordLocale.KOREAN, "공유뽀모도로",
+                        DiscordLocale.JAPANESE, "共有ポモドーロ"
+                ))
+                .setDescriptionLocalizations(Map.of(
+                        DiscordLocale.KOREAN, "음성 채널에서 공유 뽀모도로 타이머를 시작합니다",
+                        DiscordLocale.JAPANESE, "ボイスチャンネルで共有ポモドーロタイマーを開始します"
+                ))
+                .addOption(net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER, 
+                        "study", "Study time in minutes (default: 25)", false)
+                .addOption(net.dv8tion.jda.api.interactions.commands.OptionType.INTEGER, 
+                        "break", "Short break time in minutes (default: 5)", false)
+                .addOption(net.dv8tion.jda.api.interactions.commands.OptionType.BOOLEAN, 
+                        "autostart", "Auto start next phase (default: false)", false)
         );
 
         // Discord API에 명령어 등록 (글로벌 명령어)

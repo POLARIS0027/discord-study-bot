@@ -89,9 +89,39 @@ public class SharedPomodoroService {
                 sessionManager.pausePomodoro(session.getGuildId(), userId, userId);
             }
 
+            // 메시지를 "중지됨" 상태로 업데이트
+            updateStoppedTimerMessage(session, "ko");
+
             activeTimers.remove(voiceChannelId);
             logger.info("[채널 ID: {}] 공유 뽀모도로 중지", voiceChannelId);
         }
+    }
+
+    /**
+     * 중지된 타이머 메시지 업데이트
+     */
+    private void updateStoppedTimerMessage(SharedPomodoroSession session, String lang) {
+        if (session.getMessageId() == null) {
+            return;
+        }
+
+        TextChannel textChannel = jda.getTextChannelById(session.getTextChannelId());
+        if (textChannel == null) {
+            return;
+        }
+
+        textChannel.retrieveMessageById(session.getMessageId()).queue(message -> {
+            EmbedBuilder eb = buildTimerEmbed(session, lang);
+            eb.setColor(new Color(0x95A5A6)); // Gray color for stopped state
+            eb.setFooter("타이머가 중지되었습니다");
+
+            // 비활성화된 버튼 표시
+            Button disabledButton = Button.secondary("stopped", "타이머 중지됨").asDisabled();
+            
+            message.editMessageEmbeds(eb.build())
+                .setActionRow(disabledButton)
+                .queue();
+        }, error -> logger.warn("중지된 메시지 업데이트 실패: {}", session.getMessageId()));
     }
 
     /**
@@ -174,7 +204,20 @@ public class SharedPomodoroService {
             session.setState(previousState);
             session.setPhaseStartTime(java.time.LocalDateTime.now());
             
-            logger.info("[채널 ID: {}] 공유 뽀모도로 재개", voiceChannelId);
+            // 공부 시간으로 재개되면 모든 참여자의 StudyLog 시작
+            if (previousState == PomodoroState.STUDY) {
+                Guild guild = jda.getGuildById(session.getGuildId());
+                if (guild != null) {
+                    for (String userId : session.getParticipants()) {
+                        Member member = guild.retrieveMemberById(userId).complete();
+                        sessionManager.startPomodoroStudy(session.getGuildId(), 
+                            session.getGuildId(), userId, member.getEffectiveName());
+                    }
+                }
+                logger.info("[채널 ID: {}] 공부 시간 재개, 모든 참여자 StudyLog 시작", voiceChannelId);
+            } else {
+                logger.info("[채널 ID: {}] 휴식 시간 재개", voiceChannelId);
+            }
             
             // 메시지 업데이트
             updateSharedTimerMessage(session, lang);
@@ -325,7 +368,7 @@ public class SharedPomodoroService {
                 Button resumeButton = Button.primary("shared_resume_" + session.getChannelId(), 
                     MessageProvider.get(lang, "pomodoro.btn.resume"));
                 message.editMessageEmbeds(eb.build())
-                    .setActionRow(resumeButton, stopButton)
+                    .setActionRow(joinButton, leaveButton, resumeButton, stopButton)
                     .queue();
             } else {
                 Button pauseButton = Button.secondary("shared_pause_" + session.getChannelId(), 

@@ -42,7 +42,7 @@ discord-study-bot/
 ### 2. JAR 업로드
 ```bash
 # Green으로 배포 (현재 Blue가 활성일 때)
-scp build/libs/*.jar arm:~/discord-study-bot/prod/green/build/libs/
+scp -i C:\Users\SJW-DESKTOP\.ssh\ubuntu\shin-dev.key E:\github\studybot\discord-study-bot\build\libs\discord-study-bot-0.0.3-SNAPSHOT.jar ubuntu@138.2.59.61:~/discord-study-bot/prod/green/build/libs/
 ```
 
 ### 3. 배포

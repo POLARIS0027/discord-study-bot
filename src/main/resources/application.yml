@@ -27,7 +27,7 @@ logging:
 # Discord bot Token here
 discord:
   token:
-  prefix: "!" # 봇 명령어 접두사
+  # prefix: "!" # ❌ 더 이상 사용하지 않음 (Slash Commands 사용)
   exclude-user-id: "794417295468003399" # 제외할 userId
 
 # Event 기간 설정

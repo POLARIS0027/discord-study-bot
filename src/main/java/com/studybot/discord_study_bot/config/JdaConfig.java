@@ -1,8 +1,7 @@
 package com.studybot.discord_study_bot.config;
 
-import com.studybot.discord_study_bot.listener.RankingCommandListener;
+import com.studybot.discord_study_bot.listener.SlashCommandListener;
 import com.studybot.discord_study_bot.listener.VoiceChannelListener;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -22,7 +21,7 @@ public class JdaConfig {
     private String token;
 
     private final VoiceChannelListener voiceChannelListener;
-    private final RankingCommandListener rankingCommandListener;
+    private final SlashCommandListener slashCommandListener;
 
     @Bean // JDA 객체를 spring이 관리하도록 함
     public JDA jda() throws InterruptedException{
@@ -36,7 +35,7 @@ public class JdaConfig {
                 .enableCache(CacheFlag.VOICE_STATE) // 음성 상태 캐시
                 .setMemberCachePolicy(MemberCachePolicy.VOICE) // 보이스 관련만
                 // Listener를 봇에 등록
-                .addEventListeners(voiceChannelListener, rankingCommandListener)
+                .addEventListeners(voiceChannelListener, slashCommandListener)
                 .build();
 
         // 봇 빌드 대기

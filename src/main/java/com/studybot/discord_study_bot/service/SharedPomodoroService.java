@@ -233,13 +233,8 @@ public class SharedPomodoroService {
             session.nextPhase();
             sendPhaseNotification(session, lang, "pomodoro.study_complete");
 
-            if (session.isAutoStart()) {
-                // 자동 시작
-                logger.info("자동 시작: 휴식 시간 시작");
-            } else {
-                // 수동 시작 대기
-                session.setState(PomodoroState.PAUSED);
-            }
+            // 공부 → 휴식은 항상 자동 시작
+            logger.info("휴식 시간 자동 시작");
         } else {
             // 휴식 완료 → 공부
             session.nextPhase();

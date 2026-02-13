@@ -61,7 +61,7 @@ public class SlashCommandListener extends ListenerAdapter {
             case "weekly" -> handleWeeklyRanking(event, guildId, guild, lang);
             case "event" -> handleEventRanking(event, guildId, guild, lang);
             case "myrank" -> handleMyRank(event, guildId, authorId, author, lang);
-            case "monthly" -> handleMonthly(event, lang);
+            case "monthly" -> handleMonthly(event, guildId, guild, lang);
             default -> event.reply("알 수 없는 명령어입니다.").setEphemeral(true).queue();
         }
     }
@@ -134,7 +134,12 @@ public class SlashCommandListener extends ListenerAdapter {
             return;
         }
 
-        StringBuilder rankMessage = new StringBuilder(MessageProvider.get(lang, "weekly.title"));
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle(MessageProvider.get(lang, "weekly.title"));
+        eb.setColor(new Color(0x5865F2)); // Discord Blurple
+
+        StringBuilder description = new StringBuilder();
+        description.append(MessageProvider.get(lang, "weekly.period"));
 
         for (int i = 0; i < weeklyRanking.size(); i++) {
             RankingDto ranker = weeklyRanking.get(i);
@@ -148,13 +153,16 @@ public class SlashCommandListener extends ListenerAdapter {
                 logger.warn("{} ID를 가진 유저가 서버에 없어서 이름을 찾을 수 없습니다.", ranker.getUserId());
             }
 
-            rankMessage.append(String.format("%d. %s - %s\n",
+            description.append(String.format("%d. %s - %s\n",
                     i + 1,
                     userName,
                     formatDuration(ranker.getTotalDuration(), lang)));
         }
 
-        event.getHook().sendMessage(rankMessage.toString()).queue();
+        eb.setDescription(description.toString());
+        eb.setFooter(MessageProvider.get(lang, "weekly.footer"));
+
+        event.getHook().sendMessageEmbeds(eb.build()).queue();
     }
 
     // 이벤트 랭킹 처리
@@ -212,51 +220,84 @@ public class SlashCommandListener extends ListenerAdapter {
         logger.info("{}님의 개인 정보 요청을 받았습니다.", author.getName());
 
         // 처리 시간이 3초 이상 걸릴 수 있으므로 deferReply 사용
-        event.deferReply().setEphemeral(true).queue(); // ephemeral로 나만 보이게 설정
+        event.deferReply().setEphemeral(true).queue();
 
-        // 1. 10위까지의 랭킹 데이터 가져오기
+        // 1. 주간 랭킹 조회
         List<RankingDto> weeklyRanking = rankingService.getWeeklyRanking(guildId);
-        int myRank = -1;
+        int myWeeklyRank = -1;
 
-        // 2. 10위 안에 내가 있는지 찾아보기
         for (int i = 0; i < weeklyRanking.size(); i++) {
             if (weeklyRanking.get(i).getUserId().equals(authorId)) {
-                myRank = i + 1;
+                myWeeklyRank = i + 1;
                 break;
             }
         }
 
-        StringBuilder dmMessage = new StringBuilder();
-        dmMessage.append(MessageProvider.format(lang, "myrank.title", author.getName()));
+        // 2. 개인 주간/월간 공부시간 조회
+        Optional<Long> weeklyTime = rankingService.getWeeklyTotalStudyTimeForUser(guildId, authorId);
+        Optional<Long> monthlyTime = rankingService.getMonthlyTotalStudyTimeForUser(guildId, authorId);
 
-        if (myRank != -1) { // 10위 안에 내가 있을 경우
-            long myTotalStudyTime = weeklyRanking.get(myRank - 1).getTotalDuration();
-            dmMessage.append(MessageProvider.format(lang, "myrank.study_time",
-                    formatDuration(myTotalStudyTime, lang)));
-            dmMessage.append(MessageProvider.format(lang, "myrank.rank",
-                    weeklyRanking.size(), myRank));
-
-            if (myRank == 1) {
-                dmMessage.append(MessageProvider.format(lang, "myrank.first", author.getName()));
-            } else {
-                dmMessage.append(MessageProvider.get(lang, "myrank.encourage"));
-            }
-        } else { // 10위 안에 내가 없을 경우
-            Optional<Long> optionalTotalTime = rankingService.getWeeklyTotalStudyTimeForUser(guildId, authorId);
-
-            if (optionalTotalTime.isPresent() && optionalTotalTime.get() > 0) {
-                dmMessage.append(MessageProvider.format(lang, "myrank.study_time",
-                        formatDuration(optionalTotalTime.get(), lang)));
-                dmMessage.append(MessageProvider.get(lang, "myrank.outside"));
-                dmMessage.append(MessageProvider.get(lang, "myrank.outside_msg"));
-            } else {
-                dmMessage.append(MessageProvider.get(lang, "myrank.no_study"));
-            }
+        // 3. Embed 메시지 구성
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle(MessageProvider.format(lang, "myrank.title", author.getName()));
+        eb.setColor(new Color(0xFEE75C)); // Discord Yellow
+        
+        // 프로필 사진 추가
+        String avatarUrl = author.getAvatarUrl();
+        if (avatarUrl != null) {
+            eb.setThumbnail(avatarUrl);
         }
+
+        // 주간 공부시간
+        if (weeklyTime.isPresent() && weeklyTime.get() > 0) {
+            String weeklyDuration = formatDuration(weeklyTime.get(), lang);
+            String weeklyRankText = myWeeklyRank != -1 
+                ? String.format("%d/%d%s", myWeeklyRank, weeklyRanking.size(), 
+                    MessageProvider.get(lang, "myrank.rank_suffix"))
+                : MessageProvider.get(lang, "myrank.outside_rank");
+            
+            eb.addField(
+                MessageProvider.get(lang, "myrank.weekly_title"),
+                String.format("⏱️ %s\n🏆 %s", weeklyDuration, weeklyRankText),
+                false
+            );
+        } else {
+            eb.addField(
+                MessageProvider.get(lang, "myrank.weekly_title"),
+                MessageProvider.get(lang, "myrank.no_study_weekly"),
+                false
+            );
+        }
+
+        // 월간 공부시간
+        if (monthlyTime.isPresent() && monthlyTime.get() > 0) {
+            String monthlyDuration = formatDuration(monthlyTime.get(), lang);
+            eb.addField(
+                MessageProvider.get(lang, "myrank.monthly_title"),
+                String.format("⏱️ %s", monthlyDuration),
+                false
+            );
+        } else {
+            eb.addField(
+                MessageProvider.get(lang, "myrank.monthly_title"),
+                MessageProvider.get(lang, "myrank.no_study_monthly"),
+                false
+            );
+        }
+
+        // 격려 메시지
+        if (myWeeklyRank == 1) {
+            eb.setDescription(MessageProvider.format(lang, "myrank.first", author.getName()));
+        } else if (weeklyTime.isPresent() && weeklyTime.get() > 0) {
+            eb.setDescription(MessageProvider.get(lang, "myrank.encourage"));
+        }
+
+        eb.setFooter(MessageProvider.get(lang, "myrank.footer"));
+        eb.setTimestamp(java.time.Instant.now());
 
         // 4. DM으로 발송
         author.openPrivateChannel().queue(privateChannel -> {
-            privateChannel.sendMessage(dmMessage.toString()).queue(
+            privateChannel.sendMessageEmbeds(eb.build()).queue(
                     success -> event.getHook().sendMessage(
                             MessageProvider.get(lang, "myrank.dm_sent")).setEphemeral(true).queue(),
                     error -> {
@@ -273,8 +314,48 @@ public class SlashCommandListener extends ListenerAdapter {
     }
 
     // 월간 랭킹 처리
-    private void handleMonthly(SlashCommandInteractionEvent event, String lang) {
-        event.reply(MessageProvider.get(lang, "monthly.not_ready")).queue();
+    private void handleMonthly(SlashCommandInteractionEvent event, String guildId, Guild guild, String lang) {
+        logger.info("월간 랭킹 요청을 받았습니다.");
+
+        // 처리 시간이 3초 이상 걸릴 수 있으므로 deferReply 사용
+        event.deferReply().queue();
+
+        List<RankingDto> monthlyRanking = rankingService.getMonthlyRanking(guildId);
+
+        if (monthlyRanking.isEmpty()) {
+            event.getHook().sendMessage(MessageProvider.get(lang, "monthly.no_data")).queue();
+            return;
+        }
+
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle(MessageProvider.get(lang, "monthly.title"));
+        eb.setColor(new Color(0x57F287)); // Discord Green
+
+        StringBuilder description = new StringBuilder();
+        description.append(MessageProvider.get(lang, "monthly.period"));
+
+        for (int i = 0; i < monthlyRanking.size(); i++) {
+            RankingDto ranker = monthlyRanking.get(i);
+            String userName;
+
+            try {
+                Member member = guild.retrieveMemberById(ranker.getUserId()).complete();
+                userName = member.getEffectiveName();
+            } catch (Exception e) {
+                userName = MessageProvider.get(lang, "weekly.user_not_found");
+                logger.warn("{} ID를 가진 유저가 서버에 없어서 이름을 찾을 수 없습니다.", ranker.getUserId());
+            }
+
+            description.append(String.format("%d. %s - %s\n",
+                    i + 1,
+                    userName,
+                    formatDuration(ranker.getTotalDuration(), lang)));
+        }
+
+        eb.setDescription(description.toString());
+        eb.setFooter(MessageProvider.get(lang, "monthly.footer"));
+
+        event.getHook().sendMessageEmbeds(eb.build()).queue();
     }
 
     // 초를 "O시간 O분 O초" 또는 "O時間O分O秒" 형식으로 변환하는 메서드

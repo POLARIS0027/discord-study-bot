@@ -27,9 +27,11 @@ public class MessageProvider {
                     Map.entry("rize.footer", "망설이지 말고 지금 바로 클릭! 👉"),
 
                     // 주간랭킹
-                    Map.entry("weekly.title", "🏆 이번 주 공부 시간 랭킹 🏆\n"),
+                    Map.entry("weekly.title", "🏆 이번 주 공부 시간 랭킹 🏆"),
+                    Map.entry("weekly.period", "이번 주 누적 공부 시간\n\n"),
                     Map.entry("weekly.no_data", "이번 주 공부 기록이 아직 없어요."),
                     Map.entry("weekly.user_not_found", "(서버에 없는 사용자)"),
+                    Map.entry("weekly.footer", "매주 월요일 초기화! ⏰"),
 
                     // 이벤트
                     Map.entry("event.title", "🎉 이벤트 누계 공부 시간 랭킹 🎉"),
@@ -39,20 +41,25 @@ public class MessageProvider {
                     Map.entry("event.footer", "이벤트 상품을 향해 달려봐요! 🍗🏃‍♂️💨"),
 
                     // 내랭킹
-                    Map.entry("myrank.title", " **%s님의 공부 기록**\n\n"),
-                    Map.entry("myrank.study_time", "✍️ 이번주 공부시간: **%s**\n\n"),
-                    Map.entry("myrank.rank", "현재 %d명중 🏆 **%d위** 입니다.\n\n"),
-                    Map.entry("myrank.first", "🎉 누구보다 열심히 공부하는 %s! 1위를 유지하세요!! 🎉"),
+                    Map.entry("myrank.title", "**%s님의 공부 기록**"),
+                    Map.entry("myrank.weekly_title", "📊 주간 공부시간"),
+                    Map.entry("myrank.monthly_title", "📅 월간 공부시간"),
+                    Map.entry("myrank.rank_suffix", "위"),
+                    Map.entry("myrank.outside_rank", "10위권 밖"),
+                    Map.entry("myrank.no_study_weekly", "이번 주 공부 기록이 없어요"),
+                    Map.entry("myrank.no_study_monthly", "이번 달 공부 기록이 없어요"),
+                    Map.entry("myrank.first", "🎉 누구보다 열심히 공부하는 %s님! 1위를 유지하세요!! 🎉"),
                     Map.entry("myrank.encourage", "좀더 달려서 1위를 노려봅시다!! 👍"),
-                    Map.entry("myrank.outside", "🏆 현재 랭킹: **10위권 밖** 입니다.\n\n"),
-                    Map.entry("myrank.outside_msg", "아쉽지만 순위권 밖이라도 괜찮아! 꾸준히 하는 게 제일 중요해! 💪"),
-                    Map.entry("myrank.no_study", "이번주엔 공부 안하는구나? 👍\n\n다음주에도 안할예정이니?\n오늘부터라도 ㄱㄱ 😎"),
+                    Map.entry("myrank.footer", "꾸준히 공부하는 당신을 응원합니다! 💪"),
                     Map.entry("myrank.dm_sent", "개인 공부 기록이 DM으로 발송되었습니다."),
                     Map.entry("myrank.dm_blocked", "DM을 보내지 못했습니다. 혹시 DM을 차단한 건 아닌지 확인해 주세요"),
                     Map.entry("myrank.dm_failed", "DM을 보내는 데 실패했습니다. 잠시 후에 다시 시도해 주세요"),
 
                     // 월간랭킹
-                    Map.entry("monthly.not_ready", "월간 랭킹 기능은 준비중입니다"),
+                    Map.entry("monthly.title", "📅 이번 달 공부 시간 랭킹 📅"),
+                    Map.entry("monthly.period", "이번 달 누적 공부 시간\n\n"),
+                    Map.entry("monthly.no_data", "이번 달 공부 기록이 아직 없어요."),
+                    Map.entry("monthly.footer", "매달 1일에 초기화됩니다! 📆"),
 
                     // 시간 포맷
                     Map.entry("time.hour", "%d시간 %d분 %d초"),
@@ -81,9 +88,11 @@ public class MessageProvider {
                     Map.entry("rize.footer", "今すぐクリック！👉"),
 
                     // 週間ランキング
-                    Map.entry("weekly.title", "🏆 今週の勉強時間ランキング 🏆\n"),
+                    Map.entry("weekly.title", "🏆 今週の勉強時間ランキング 🏆"),
+                    Map.entry("weekly.period", "今週の累計勉強時間\n\n"),
                     Map.entry("weekly.no_data", "今週の勉強記録はまだありません。"),
                     Map.entry("weekly.user_not_found", "(サーバーにいないユーザー)"),
+                    Map.entry("weekly.footer", "毎週月曜日にリセット！⏰"),
 
                     // イベント
                     Map.entry("event.title", "🎉 イベント累計勉強時間ランキング 🎉"),
@@ -93,20 +102,25 @@ public class MessageProvider {
                     Map.entry("event.footer", "イベント商品を目指して頑張ろう！🍗🏃‍♂️💨"),
 
                     // マイランキング
-                    Map.entry("myrank.title", " **%sさんの勉強記録**\n\n"),
-                    Map.entry("myrank.study_time", "✍️ 今週の勉強時間：**%s**\n\n"),
-                    Map.entry("myrank.rank", "現在%d人中🏆 **%d位**です。\n\n"),
+                    Map.entry("myrank.title", "**%sさんの勉強記録**"),
+                    Map.entry("myrank.weekly_title", "📊 週間勉強時間"),
+                    Map.entry("myrank.monthly_title", "📅 月間勉強時間"),
+                    Map.entry("myrank.rank_suffix", "位"),
+                    Map.entry("myrank.outside_rank", "10位圏外"),
+                    Map.entry("myrank.no_study_weekly", "今週の勉強記録がありません"),
+                    Map.entry("myrank.no_study_monthly", "今月の勉強記録がありません"),
                     Map.entry("myrank.first", "🎉 誰よりも頑張って勉強する%sさん！1位を維持してください！！🎉"),
                     Map.entry("myrank.encourage", "もう少し頑張って1位を目指しましょう！！👍"),
-                    Map.entry("myrank.outside", "🏆 現在のランキング：**10位圏外**です。\n\n"),
-                    Map.entry("myrank.outside_msg", "残念ながら順位圏外でも大丈夫！続けることが一番大事！💪"),
-                    Map.entry("myrank.no_study", "今週は勉強しないの？👍\n\n来週もしない予定？\n今日からでも始めよう😎"),
+                    Map.entry("myrank.footer", "頑張るあなたを応援します！💪"),
                     Map.entry("myrank.dm_sent", "個人の勉強記録がDMで送信されました。"),
                     Map.entry("myrank.dm_blocked", "DMを送信できませんでした。DMをブロックしていないか確認してください"),
                     Map.entry("myrank.dm_failed", "DMの送信に失敗しました。しばらくしてからもう一度お試しください"),
 
                     // 月間ランキング
-                    Map.entry("monthly.not_ready", "月間ランキング機能は準備中です"),
+                    Map.entry("monthly.title", "📅 今月の勉強時間ランキング 📅"),
+                    Map.entry("monthly.period", "今月の累計勉強時間\n\n"),
+                    Map.entry("monthly.no_data", "今月の勉強記録はまだありません。"),
+                    Map.entry("monthly.footer", "毎月1日にリセットされます！📆"),
 
                     // 時間フォーマット
                     Map.entry("time.hour", "%d時間%d分%d秒"),

@@ -127,4 +127,46 @@ public class RankingService {
 
                 return !today.isBefore(startOfEvent) && !today.isAfter(endOfEvent);
         }
+
+        // 이번 달의 랭킹을 가져오는 메서드
+        public List<RankingDto> getMonthlyRanking(String guildId) {
+                // 이번 달 1일 00:00:00
+                LocalDateTime startOfMonth = LocalDate.now()
+                                .with(TemporalAdjusters.firstDayOfMonth())
+                                .atStartOfDay();
+
+                // 이번 달 마지막 날 23:59:59
+                LocalDateTime endOfMonth = LocalDate.now()
+                                .with(TemporalAdjusters.lastDayOfMonth())
+                                .atTime(23, 59, 59);
+
+                // DB로부터 순수 데이터(Object 배열의 리스트)를 받아옴
+                List<Object[]> rawRankingData = studyLogRepository.findRankingsByPeriodAndGuild(guildId,
+                                startOfMonth, endOfMonth, excludeUserId);
+
+                // 순수 데이터를 RankingDto 리스트로 변환
+                return rawRankingData.stream()
+                                .map(data -> new RankingDto(
+                                                (String) data[0], // 첫 번째 값(user_id)
+                                                ((BigDecimal) data[1]).longValue() // 두 번째 값(SUM 결과)은 BigDecimal ->
+                                                                                   // Long으로 변환
+                                ))
+                                .collect(Collectors.toList());
+        }
+
+        // 개인 유저의 월간 공부시간을 가져오는 메서드
+        public Optional<Long> getMonthlyTotalStudyTimeForUser(String guildId, String userId) {
+                // 이번 달 1일 00:00:00
+                LocalDateTime startOfMonth = LocalDate.now()
+                                .with(TemporalAdjusters.firstDayOfMonth())
+                                .atStartOfDay();
+
+                // 이번 달 마지막 날 23:59:59
+                LocalDateTime endOfMonth = LocalDate.now()
+                                .with(TemporalAdjusters.lastDayOfMonth())
+                                .atTime(23, 59, 59);
+
+                return studyLogRepository.findTotalDurationByUserIdPeriodAndGuild(guildId, userId, startOfMonth,
+                                endOfMonth);
+        }
 }

@@ -3,7 +3,6 @@ package com.studybot.discord_study_bot.service;
 import com.studybot.discord_study_bot.i18n.MessageProvider;
 import com.studybot.discord_study_bot.pomodoro.PomodoroState;
 import com.studybot.discord_study_bot.pomodoro.SharedPomodoroSession;
-import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -14,6 +13,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
  * 공유 뽀모도로 타이머 서비스
  */
 @Service
-@RequiredArgsConstructor
 public class SharedPomodoroService {
 
     private static final Logger logger = LoggerFactory.getLogger(SharedPomodoroService.class);
@@ -37,6 +36,14 @@ public class SharedPomodoroService {
 
     // Key: channelId (음성 채널 ID), Value: SharedPomodoroSession
     private final Map<String, SharedPomodoroSession> activeTimers = new ConcurrentHashMap<>();
+
+    /**
+     * 생성자 - JDA는 지연 로딩하여 순환 의존성 방지
+     */
+    public SharedPomodoroService(@Lazy JDA jda, StudySessionManager sessionManager) {
+        this.jda = jda;
+        this.sessionManager = sessionManager;
+    }
 
     /**
      * 공유 타이머 시작

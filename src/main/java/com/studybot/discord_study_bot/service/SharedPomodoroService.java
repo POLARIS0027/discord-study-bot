@@ -247,8 +247,10 @@ public class SharedPomodoroService {
 
                 session.decrementSecond();
 
-                // 5초마다 메시지 업데이트
-                if (session.getRemainingSeconds() % 5 == 0) {
+                long remaining = session.getRemainingSeconds();
+
+                // 마지막 10초는 1초마다, 그 외는 30초마다 업데이트
+                if (remaining <= 10 || remaining % 30 == 0) {
                     updateSharedTimerMessage(session, "ko"); // TODO: lang 저장 필요
                 }
 
